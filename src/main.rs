@@ -1,3 +1,12 @@
+mod text_analyzer;
+
+
+
+// use text_analyzer::text_analyzer::TextAnalyzer;
+use crate::text_analyzer::text_analyzer_manager::TextAnalyzerManager;
+
 fn main() {
-    println!("Hello, world!");
+    let mut tam = TextAnalyzerManager::new();
+    tam.run();
+    
 }
