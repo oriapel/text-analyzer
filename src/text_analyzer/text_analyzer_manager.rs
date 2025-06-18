@@ -20,19 +20,24 @@ fn convert_u32_to_text_analyzer_option(num: u32) -> TextAnalyzerMenu {
 }
 
 /// Reads a u32 number from the user input
-fn get_u32_from_user() -> u32 {
+fn get_u32_from_user() -> Result<u32, Box<dyn std::error::Error>> {
     let mut input = String::new();
-    stdin().read_line(&mut input).expect("Failed to read line");
-    input.trim().parse().unwrap_or(0)
+
+    stdin().read_line(&mut input)?;
+
+    let number = input.trim().parse::<u32>()?;
+
+    Ok(number)
 }
 
 /// Reads a string from the user input
-fn get_text_from_user() -> String {
-    let mut input_text = String::new();
-    stdin()
-        .read_line(&mut input_text)
-        .expect("Failed to read line");
-    input_text.trim().to_string()
+/// Reads a String from the user and returns any I/O errors
+fn get_text_from_user() -> Result<String, Box<dyn std::error::Error>> {
+    let mut input = String::new();
+
+    stdin().read_line(&mut input)?;
+
+    Ok(input.trim().to_string())
 }
 
 /// TextAnalyzerManager struct that manages the TextAnalyzer operations
@@ -58,16 +63,34 @@ impl TextAnalyzerManager {
             println!("2. Get Word Count");
             println!("3. Exit");
 
-            let choice = get_u32_from_user();
+            let choice = match get_u32_from_user() {
+                Ok(num) => num,
+                Err(e) => {
+                    println!("Error: {e}");
+                    continue;
+                }
+            };
             match convert_u32_to_text_analyzer_option(choice) {
                 TextAnalyzerMenu::AnalyzeNewText => {
                     println!("Enter text to analyze:");
-                    let text = get_text_from_user();
+                    let text = match get_text_from_user() {
+                        Ok(text) => text,
+                        Err(e) => {
+                            println!("Error reading text: {e}");
+                            continue;
+                        }
+                    };
                     self.text_analyzer.analyze_new_text(text);
                 }
                 TextAnalyzerMenu::GetWordCount => {
                     println!("Enter word to count:");
-                    let word = get_text_from_user();
+                    let word = match get_text_from_user() {
+                        Ok(w) => w,
+                        Err(e) => {
+                            println!("Error reading word: {e}");
+                            continue;
+                        }
+                    };
                     let count = self.text_analyzer.get_word_counter(&word);
                     println!("The word '{}' appears {} times.", word, count);
                 }

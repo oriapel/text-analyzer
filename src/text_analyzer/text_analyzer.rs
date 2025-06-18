@@ -8,7 +8,7 @@ pub struct TextAnalyzer {
 
 impl TextAnalyzer {
     /// Constructor for the TextAnalyzer struct
-    /// Initializes a new TextAnalyzer with an empty HashMap for analyzed words
+    /// Initializes a new TextAnalyzer with an empty [HashMap] for analyzed words
     pub fn new() -> Self {
         Self {
             analyzed_words: HashMap::new(),
@@ -23,7 +23,7 @@ impl TextAnalyzer {
         }
     }
 
-    /// This function retrieves the count of a specific word from the analyzed_words HashMap
+    /// This function retrieves the count of a specific word from the analyzed_words [HashMap]
     /// If the word is not found, it returns 0
     pub fn get_word_counter(&self, word: &String) -> u32 {
         self.analyzed_words.get(word).copied().unwrap_or(0)
