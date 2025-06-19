@@ -1,7 +1,7 @@
 use crate::text_analyzer::text_analyzer::TextAnalyzer;
-use std::io::stdin;
+use std::{convert::TryFrom, io::stdin};
 
-/// Enum representing the options available in the Text Analyzer menu
+/// Enum representing the options available in the [TextAnalyzer]
 pub enum TextAnalyzerMenu {
     AnalyzeNewText,
     GetWordCount,
@@ -9,13 +9,17 @@ pub enum TextAnalyzerMenu {
     InvalidChoice,
 }
 
-/// Converts a u32 number to a TextAnalyzerMenu enum variant
-fn convert_u32_to_text_analyzer_option(num: u32) -> TextAnalyzerMenu {
-    match num {
-        1 => TextAnalyzerMenu::AnalyzeNewText,
-        2 => TextAnalyzerMenu::GetWordCount,
-        3 => TextAnalyzerMenu::Exit,
-        _ => TextAnalyzerMenu::InvalidChoice,
+impl TryFrom<u32> for TextAnalyzerMenu {
+    type Error = ();
+
+    /// Converts a u32 number to a [TextAnalyzerMenu] enum variant
+    fn try_from(value: u32) -> Result<Self, Self::Error> {
+        match value {
+            1 => Ok(TextAnalyzerMenu::AnalyzeNewText),
+            2 => Ok(TextAnalyzerMenu::GetWordCount),
+            3 => Ok(TextAnalyzerMenu::Exit),
+            _ => Err(()),
+        }
     }
 }
 
@@ -31,7 +35,6 @@ fn get_u32_from_user() -> Result<u32, Box<dyn std::error::Error>> {
 }
 
 /// Reads a string from the user input
-/// Reads a String from the user and returns any I/O errors
 fn get_text_from_user() -> Result<String, Box<dyn std::error::Error>> {
     let mut input = String::new();
 
@@ -40,23 +43,23 @@ fn get_text_from_user() -> Result<String, Box<dyn std::error::Error>> {
     Ok(input.trim().to_string())
 }
 
-/// TextAnalyzerManager struct that manages the TextAnalyzer operations
-/// It contains a TextAnalyzer instance and methods to interact with it
+/// [TextAnalyzerManager] struct that manages the [TextAnalyzer] operations
+/// It contains a [TextAnalyzer] instance and methods to interact with it
 pub struct TextAnalyzerManager {
     pub text_analyzer: TextAnalyzer,
 }
 
 impl TextAnalyzerManager {
-    /// Constructor for the TextAnalyzerManager struct
-    /// Initializes a new TextAnalyzerManager with an empty TextAnalyzer
+    /// Constructor for the [TextAnalyzerManager] struct
+    /// Initializes a new [TextAnalyzerManager] with an empty [TextAnalyzer]
     pub fn new() -> Self {
         Self {
             text_analyzer: TextAnalyzer::new(),
         }
     }
 
-    /// This function runs the Text Analyzer menu, allowing the user to analyze text and get word counts
-    pub fn run(&mut self) {
+    /// This function runs the [TextAnalyzer] menu, allowing the user to analyze text and get word counts
+    pub fn run(mut self) {
         loop {
             println!("Text Analyzer Menu:");
             println!("1. Add new text to analyze");
@@ -70,7 +73,11 @@ impl TextAnalyzerManager {
                     continue;
                 }
             };
-            match convert_u32_to_text_analyzer_option(choice) {
+            let choice = match TextAnalyzerMenu::try_from(choice) {
+                Ok(menu) => menu,
+                Err(_) => TextAnalyzerMenu::InvalidChoice,
+            };
+            match choice {
                 TextAnalyzerMenu::AnalyzeNewText => {
                     println!("Enter text to analyze:");
                     let text = match get_text_from_user() {
